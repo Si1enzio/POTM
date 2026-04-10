@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Omul Meciului - Club</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Omul Meciului</h1>
+        <p>Votează jucătorul preferat după fiecare meci</p>
+      </div>
+      <div class="top-actions">
+        <button id="showLoginBtn" class="secondary">Login admin</button>
+        <button id="logoutBtn" class="secondary hidden">Logout</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="voteSection" class="panel">
+        <h2>Vot suporteri</h2>
+        <p id="activeMatchInfo" class="muted"></p>
+        <div id="voteGrid" class="player-grid compact-grid"></div>
+        <p id="voteMessage" class="message"></p>
+      </section>
+
+      <section id="loginSection" class="panel hidden">
+        <h2>Autentificare superadmin</h2>
+        <form id="loginForm" class="form-grid">
+          <label>Email
+            <input type="email" id="loginEmail" required placeholder="admin@club.ro" />
+          </label>
+          <label>Parola
+            <input type="password" id="loginPassword" required />
+          </label>
+          <button type="submit">Logare</button>
+        </form>
+        <p class="muted">Cont inițial: <strong>admin@club.ro</strong> / <strong>admin123</strong></p>
+      </section>
+
+      <section id="adminSection" class="panel hidden">
+        <nav class="admin-nav">
+          <button data-tab="playersTab" class="tab-btn active">Jucători</button>
+          <button data-tab="matchesTab" class="tab-btn">Meciuri</button>
+          <button data-tab="resultsTab" class="tab-btn">Rezultate</button>
+          <a id="goPublicBtn" class="secondary as-btn" href="vote-stadium.html">Vot stadion</a>
+          <a class="secondary as-btn" href="vote.html">Vot online</a>
+        </nav>
+
+        <div id="playersTab" class="tab-content">
+          <h2>Administrare jucători</h2>
+          <form id="playerForm" class="form-grid">
+            <input type="hidden" id="playerId" />
+            <label>Număr joc
+              <input type="number" id="playerNumber" min="1" max="99" required />
+            </label>
+            <label>Nume și familie
+              <input type="text" id="playerName" required />
+            </label>
+            <label>Poziție
+              <select id="playerPosition" required>
+                <option value="">Selectează...</option>
+                <option value="Portar">Portar</option>
+                <option value="Fundas">Fundas</option>
+                <option value="Mijlocas">Mijlocas</option>
+                <option value="Atacant">Atacant</option>
+              </select>
+            </label>
+            <label>Poză jucător
+              <input type="file" id="playerPhoto" accept="image/*" />
+            </label>
+            <div id="cropWrapper" class="crop-wrapper hidden">
+              <canvas id="cropCanvas" width="300" height="300"></canvas>
+              <label>Zoom
+                <input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1" />
+              </label>
+              <label>Deplasare orizontală
+                <input type="range" id="cropX" min="-100" max="100" step="1" value="0" />
+              </label>
+              <label>Deplasare verticală
+                <input type="range" id="cropY" min="-100" max="100" step="1" value="0" />
+              </label>
+            </div>
+            <div class="inline-actions">
+              <button type="submit">Salvează jucător</button>
+              <button type="button" id="cancelEditPlayerBtn" class="secondary hidden">Anulează editare</button>
+            </div>
+          </form>
+          <div id="playersTable"></div>
+        </div>
+
+        <div id="matchesTab" class="tab-content hidden">
+          <h2>Administrare meciuri</h2>
+          <form id="matchForm" class="form-grid">
+            <input type="hidden" id="matchId" />
+            <label>Denumire meci
+              <input type="text" id="matchTitle" required placeholder="FC Club vs Oaspeți" />
+            </label>
+            <label>Data meci
+              <input type="date" id="matchDate" required />
+            </label>
+            <label>Jucători care au evoluat</label>
+            <div id="matchPlayersSelect" class="checkbox-grid"></div>
+            <div class="inline-actions">
+              <button type="submit">Salvează meci</button>
+              <button type="button" id="cancelEditMatchBtn" class="secondary hidden">Anulează editare</button>
+            </div>
+          </form>
+          <div id="matchesList"></div>
+        </div>
+
+        <div id="resultsTab" class="tab-content hidden">
+          <h2>Rezultate vot</h2>
+          <label>Meci
+            <select id="resultsMatchSelect"></select>
+          </label>
+          <div id="resultsTable"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
