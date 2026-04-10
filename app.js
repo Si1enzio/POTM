@@ -183,15 +183,22 @@ function renderMatchesAdmin(data) {
 
 function renderResults(data) {
   const select = qs('resultsMatchSelect');
+  const previouslySelectedId = select.value;
   select.innerHTML = data.matches.map(m => `<option value="${m.id}">${m.title} (${m.date})</option>`).join('');
-  const currentMatchId = select.value || data.activeMatchId;
+
+  const existsPrevious = data.matches.some(m => m.id === previouslySelectedId);
+  if (existsPrevious) {
+    select.value = previouslySelectedId;
+  } else if (data.activeMatchId && data.matches.some(m => m.id === data.activeMatchId)) {
+    select.value = data.activeMatchId;
+  }
+
+  const currentMatchId = select.value;
 
   if (!currentMatchId) {
     qs('resultsTable').innerHTML = '<p class="muted">Nu există meciuri.</p>';
     return;
   }
-
-  if (!select.value && currentMatchId) select.value = currentMatchId;
 
   const match = data.matches.find(m => m.id === currentMatchId);
   if (!match) return;
