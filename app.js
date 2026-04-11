@@ -35,17 +35,18 @@ function getData() {
     if (!data.matches) data.matches = [];
     if (!Array.isArray(data.votes)) data.votes = [];
 
-    const maybeAutoSeeded = data.matches.length === 1
+    const looksLikeLegacyDemo = data.matches.length === 1
       && data.matches[0].title === 'Milsami'
       && (data.matches[0].opponent || '') === 'Dacia Buiucani'
       && Array.isArray(data.players)
       && Array.isArray(data.matches[0].playerIds)
-      && data.matches[0].playerIds.length === data.players.length
-      && data.votes.length === 0;
+      && data.matches[0].playerIds.length === data.players.length;
 
-    if (maybeAutoSeeded) {
+    if (looksLikeLegacyDemo) {
+      const legacyId = data.matches[0].id;
       data.matches = [];
       data.activeMatchId = null;
+      data.votes = data.votes.filter(v => v.matchId !== legacyId);
       setData(data);
     }
 
