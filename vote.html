@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vot online - Omul Meciului</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="public-only" data-vote-mode="limited">
+    <header class="topbar compact">
+      <div>
+        <h1>Omul Meciului</h1>
+        <p>Vot online (1 vot / dispozitiv / meci)</p>
+      </div>
+      <a href="index.html" class="admin-link">Login admin</a>
+    </header>
+
+    <main class="public-main">
+      <section id="voteSection" class="panel vote-panel-full">
+        <h2>Votează acum</h2>
+        <p id="activeMatchInfo" class="muted"></p>
+        <div id="voteGrid" class="player-grid compact-grid"></div>
+        <p id="voteMessage" class="message"></p>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
