@@ -85,6 +85,11 @@ function getActiveMatch(data) {
   return data.matches.find(m => m.id === data.activeMatchId) || null;
 }
 
+function matchDisplayTitle(match) {
+  if (!match) return "";
+  return match.opponent ? `${match.title} vs ${match.opponent}` : match.title;
+}
+
 function getVoteMode() {
   return document.body?.dataset?.voteMode === 'unlimited' ? 'unlimited' : 'limited';
 }
@@ -111,7 +116,7 @@ function renderVoteSection(data) {
   }
 
   const votePlayers = data.players.filter(p => active.playerIds.includes(p.id));
-  info.textContent = `${active.title} (${active.date})`;
+  info.textContent = `${matchDisplayTitle(active)} (${active.date})`;
 
   const mode = getVoteMode();
   const voterId = ensureDeviceVoterId();
@@ -119,17 +124,23 @@ function renderVoteSection(data) {
     ? data.votes.find(v => v.matchId === active.id && v.voterId === voterId && v.source !== 'stadium')
     : null;
 
-  grid.innerHTML = votePlayers.map(player => `
-    <article class="player-card">
-      <a href="#" class="vote-link ${existingVote ? 'disabled' : ''}" data-vote-player-id="${player.id}">
-        <img src="${avatar(player)}" alt="${player.name}" class="player-img" />
-        <div class="vote-label"><strong>#${player.number}</strong><br/>${player.name}</div>
-      </a>
-      <button data-vote-player-id="${player.id}" ${existingVote ? 'disabled' : ''}>
-        ${existingVote?.playerId === player.id ? 'Ai votat' : 'Votează'}
-      </button>
-    </article>
-  `).join('');
+  grid.innerHTML = votePlayers.map(player => {
+    const hasPhoto = Boolean(player.photoDataUrl);
+    const media = hasPhoto
+      ? `<img src="${avatar(player)}" alt="${player.name}" class="vote-media" />`
+      : `<div class="vote-media vote-media-placeholder">${player.number}</div>`;
+
+    const selectedClass = existingVote?.playerId === player.id ? 'selected' : '';
+
+    return `
+      <article class="player-card ${selectedClass}">
+        <a href="#" class="vote-link ${existingVote ? 'disabled' : ''}" data-vote-player-id="${player.id}">
+          <div class="vote-media-wrap">${media}</div>
+          <div class="vote-label"><strong>#${player.number}</strong><br/>${player.name}</div>
+        </a>
+      </article>
+    `;
+  }).join('');
 
   if (mode === 'limited' && existingVote) {
     msg.textContent = 'Ai votat deja pentru acest meci de pe acest dispozitiv.';
@@ -140,39 +151,42 @@ function renderVoteSection(data) {
 
 function renderPlayersAdmin(data) {
   const root = qs('playersTable');
-  const rows = data.players
+  const cards = data.players
     .sort((a, b) => a.number - b.number)
-    .map(p => `
-      <tr>
-        <td><img src="${avatar(p)}" class="player-img" style="width:48px;height:48px"/></td>
-        <td>#${p.number}</td>
-        <td>${p.name}</td>
-        <td>${p.position || '-'}</td>
-        <td><button data-edit-player-id="${p.id}">Editează</button></td>
-      </tr>
-    `).join('');
+    .map(p => {
+      const media = p.photoDataUrl
+        ? `<img src="${avatar(p)}" class="admin-player-avatar" alt="${p.name}"/>`
+        : `<div class="admin-player-avatar placeholder">${p.number}</div>`;
 
-  root.innerHTML = `
-    <table class="table">
-      <thead><tr><th>Poza</th><th>Nr.</th><th>Nume</th><th>Poziție</th><th>Acțiuni</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-  `;
+      return `
+        <article class="admin-player-card">
+          <div class="admin-player-media">${media}</div>
+          <div class="admin-player-name">${p.name}</div>
+          <div class="admin-player-meta">#${p.number} - ${p.position || 'Poziție nealeasă'}</div>
+          <div class="admin-player-actions">
+            <button data-edit-player-id="${p.id}" class="tiny">Editează</button>
+            <button data-delete-player-id="${p.id}" class="tiny danger">Șterge</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+
+  root.innerHTML = `<div class="admin-player-grid">${cards}</div>`;
 }
 
 function renderMatchesAdmin(data) {
   const selector = qs('matchPlayersSelect');
   selector.innerHTML = data.players
     .sort((a, b) => a.number - b.number)
-    .map(p => `<label><input type="checkbox" value="${p.id}" class="match-player-check"/> #${p.number} ${p.name}</label>`)
+    .map(p => `<label class="match-pill"><input type="checkbox" value="${p.id}" class="match-player-check"/><span>#${p.number} ${p.name}</span></label>`)
     .join('');
 
   const list = qs('matchesList');
   list.innerHTML = data.matches.map(m => {
     const names = data.players.filter(p => m.playerIds.includes(p.id)).map(p => `#${p.number} ${p.name}`).join(', ');
     return `
-      <div class="panel">
-        <strong>${m.title}</strong> - ${m.date}<br/>
+      <div class="panel match-item-card">
+        <strong>${matchDisplayTitle(m)}</strong> - ${m.date}<br/>
         <small>Jucători: ${names || '-'}</small><br/>
         <button data-edit-match-id="${m.id}">Editează</button>
         <button data-set-active-match-id="${m.id}" ${data.activeMatchId === m.id ? 'disabled' : ''}>Setează activ</button>
@@ -184,7 +198,7 @@ function renderMatchesAdmin(data) {
 function renderResults(data) {
   const select = qs('resultsMatchSelect');
   const previouslySelectedId = select.value;
-  select.innerHTML = data.matches.map(m => `<option value="${m.id}">${m.title} (${m.date})</option>`).join('');
+  select.innerHTML = data.matches.map(m => `<option value="${m.id}">${matchDisplayTitle(m)} (${m.date})</option>`).join('');
 
   const existsPrevious = data.matches.some(m => m.id === previouslySelectedId);
   if (existsPrevious) {
@@ -215,13 +229,36 @@ function renderResults(data) {
   }).sort((a, b) => b.count - a.count);
 
   qs('resultsTable').innerHTML = `
-    <p>Total voturi: <strong>${votes.length}</strong></p>
-    <table class="table">
-      <thead><tr><th>#</th><th>Jucător</th><th>Voturi</th><th>Procent</th></tr></thead>
-      <tbody>
-      ${ranking.map((r, idx) => `<tr><td>${idx + 1}</td><td>#${r.player?.number || '?'} ${r.player?.name || 'N/A'}</td><td>${r.count}</td><td>${r.percent.toFixed(2)}%</td></tr>`).join('')}
-      </tbody>
-    </table>
+    <section class="results-dashboard">
+      <div class="results-total-card">
+        <div class="results-total-number">${votes.length}</div>
+        <div class="results-total-label">Total voturi</div>
+      </div>
+
+      <div class="results-list">
+        ${ranking.map((r, idx) => {
+          const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+          const pct = r.percent.toFixed(0);
+          return `
+            <article class="result-row">
+              <div class="result-rank">${medal}</div>
+              <img src="${avatar(r.player || {})}" alt="${r.player?.name || 'N/A'}" class="result-avatar" />
+              <div class="result-player-info">
+                <div class="result-player-name">${r.player?.name || 'N/A'}</div>
+                <div class="result-player-number">#${r.player?.number || '?'}</div>
+              </div>
+              <div class="result-score">
+                <div class="result-votes">${r.count}</div>
+                <div class="result-percent">${pct}%</div>
+              </div>
+              <div class="result-bar-wrap">
+                <div class="result-bar" style="width:${pct}%"></div>
+              </div>
+            </article>
+          `;
+        }).join('')}
+      </div>
+    </section>
   `;
 }
 
@@ -327,16 +364,30 @@ function setupEvents() {
   if (qs('cancelEditPlayerBtn')) qs('cancelEditPlayerBtn').addEventListener('click', resetPlayerForm);
 
   if (qs('playersTable')) qs('playersTable').addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-edit-player-id]');
-    if (!btn) return;
+    const editBtn = e.target.closest('button[data-edit-player-id]');
+    const deleteBtn = e.target.closest('button[data-delete-player-id]');
     const data = getData();
-    const p = data.players.find(x => x.id === btn.dataset.editPlayerId);
-    if (!p) return;
-    qs('playerId').value = p.id;
-    qs('playerNumber').value = p.number;
-    qs('playerName').value = p.name;
-    qs('playerPosition').value = p.position;
-    qs('cancelEditPlayerBtn').classList.remove('hidden');
+
+    if (editBtn) {
+      const p = data.players.find(x => x.id === editBtn.dataset.editPlayerId);
+      if (!p) return;
+      qs('playerId').value = p.id;
+      qs('playerNumber').value = p.number;
+      qs('playerName').value = p.name;
+      qs('playerPosition').value = p.position;
+      qs('cancelEditPlayerBtn').classList.remove('hidden');
+      return;
+    }
+
+    if (deleteBtn) {
+      if (!confirm('Ștergi jucătorul selectat?')) return;
+      const id = deleteBtn.dataset.deletePlayerId;
+      data.players = data.players.filter(p => p.id !== id);
+      data.matches.forEach(m => m.playerIds = m.playerIds.filter(pid => pid !== id));
+      data.votes = data.votes.filter(v => v.playerId !== id);
+      setData(data);
+      renderAll();
+    }
   });
 
   if (qs('matchForm')) qs('matchForm').addEventListener('submit', (e) => {
@@ -346,6 +397,7 @@ function setupEvents() {
     const selectedPlayerIds = [...document.querySelectorAll('.match-player-check:checked')].map(i => i.value);
     const payload = {
       title: qs('matchTitle').value.trim(),
+      opponent: qs('matchOpponent') ? qs('matchOpponent').value.trim() : '',
       date: qs('matchDate').value,
       playerIds: selectedPlayerIds
     };
@@ -375,6 +427,7 @@ function setupEvents() {
       qs('matchId').value = match.id;
       qs('matchTitle').value = match.title;
       qs('matchDate').value = match.date;
+      if (qs('matchOpponent')) qs('matchOpponent').value = match.opponent || '';
       document.querySelectorAll('.match-player-check').forEach(c => {
         c.checked = match.playerIds.includes(c.value);
       });

@@ -3,29 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Omul Meciului - Club</title>
+    <title>FC Suporter Club - Omul Meciului</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
-    <header class="topbar">
-      <div>
-        <h1>Omul Meciului</h1>
-        <p>Votează jucătorul preferat după fiecare meci</p>
-      </div>
-      <div class="top-actions">
-        <button id="showLoginBtn" class="secondary">Login admin</button>
-        <button id="logoutBtn" class="secondary hidden">Logout</button>
-      </div>
-    </header>
+  <body class="home-dark">
+    <section class="home-hero">
+      <h1>FC Suporter Club</h1>
+      <p>Votează pentru Omul Meciului</p>
+      <a class="home-vote-btn" href="vote-stadium.html">Votare</a>
+      <button id="showLoginBtn" class="admin-mini">Admin</button>
+      <button id="logoutBtn" class="admin-mini hidden">Logout</button>
+    </section>
 
-    <main>
-      <section id="voteSection" class="panel">
-        <h2>Vot suporteri</h2>
-        <p id="activeMatchInfo" class="muted"></p>
-        <div id="voteGrid" class="player-grid compact-grid"></div>
-        <p id="voteMessage" class="message"></p>
-      </section>
-
+    <main class="home-admin-area">
       <section id="loginSection" class="panel hidden">
         <h2>Autentificare superadmin</h2>
         <form id="loginForm" class="form-grid">
@@ -46,7 +36,7 @@
           <button data-tab="matchesTab" class="tab-btn">Meciuri</button>
           <button data-tab="resultsTab" class="tab-btn">Rezultate</button>
           <button data-tab="publicPagesTab" class="tab-btn">Pagini publice</button>
-          <a id="goPublicBtn" class="secondary as-btn" href="vote-stadium.html" target="_blank" rel="noopener">Vot stadion</a>
+          <a class="secondary as-btn" href="vote-stadium.html" target="_blank" rel="noopener">Vot stadion</a>
           <a class="secondary as-btn" href="vote.html" target="_blank" rel="noopener">Vot online</a>
         </nav>
 
@@ -96,8 +86,11 @@
           <h2>Administrare meciuri</h2>
           <form id="matchForm" class="form-grid">
             <input type="hidden" id="matchId" />
-            <label>Denumire meci
-              <input type="text" id="matchTitle" required placeholder="FC Club vs Oaspeți" />
+            <label>Nume echipă
+              <input type="text" id="matchTitle" required placeholder="FC Club" />
+            </label>
+            <label>Adversar
+              <input type="text" id="matchOpponent" placeholder="Dacia Buiucani" />
             </label>
             <label>Data meci
               <input type="date" id="matchDate" required />
@@ -122,12 +115,10 @@
 
         <div id="publicPagesTab" class="tab-content hidden">
           <h2>Pagini publice vot</h2>
-          <p class="muted">Distribuie link-ul potrivit în funcție de scenariul de votare:</p>
           <ul>
             <li><strong>Vot stadion (plansetă):</strong> <a href="vote-stadium.html" target="_blank" rel="noopener">vote-stadium.html</a></li>
             <li><strong>Vot online (social media):</strong> <a href="vote.html" target="_blank" rel="noopener">vote.html</a></li>
           </ul>
-          <p class="muted">Vot stadion = fără limită pe dispozitiv. Vot online = 1 vot pe dispozitiv / meci.</p>
         </div>
       </section>
     </main>
