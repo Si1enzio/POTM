@@ -11,6 +11,11 @@ create table if not exists public.potm_state (
 
 alter table public.potm_state enable row level security;
 
+-- Safe re-run (avoid "policy already exists" errors)
+drop policy if exists "public read state" on public.potm_state;
+drop policy if exists "public write state" on public.potm_state;
+drop policy if exists "public update state" on public.potm_state;
+
 create policy "public read state" on public.potm_state
 for select to anon
 using (true);

@@ -17,6 +17,7 @@ let cropSourceImage = null;
 let supabaseClient = null;
 let remoteSyncEnabled = false;
 let remoteSyncTimer = null;
+let remotePollTimer = null;
 
 function initRemoteSync() {
   const cfg = window.SUPABASE_CONFIG || {};
@@ -51,6 +52,15 @@ function pushRemoteStateDebounced(state) {
   remoteSyncTimer = setTimeout(() => {
     pushRemoteState(state).catch(() => {});
   }, 250);
+}
+
+
+function startRemotePolling() {
+  if (!remoteSyncEnabled || remotePollTimer) return;
+  remotePollTimer = setInterval(async () => {
+    await pullRemoteState();
+    renderAll();
+  }, 8000);
 }
 
 
@@ -604,11 +614,16 @@ function resetMatchForm() {
     await pullRemoteState();
   }
 
-  getData();
+  const initialData = getData();
+  if (remoteSyncEnabled && !initialData.activeMatchId) {
+    await pullRemoteState();
+  }
+
   initTabs();
   setupEvents();
   window.addEventListener('resize', () => {
     if (qs('voteGrid')) renderVoteSection(getData());
   });
+  startRemotePolling();
   renderAll();
 })();
