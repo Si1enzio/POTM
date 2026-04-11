@@ -518,7 +518,9 @@ function setupEvents() {
       const match = data.matches.find(m => m.id === id);
       Object.assign(match, payload);
     } else {
-      data.matches.push({ id: uid(), ...payload });
+      const newMatch = { id: uid(), ...payload };
+      data.matches.push(newMatch);
+      if (!data.activeMatchId) data.activeMatchId = newMatch.id;
     }
 
     setData(data);
