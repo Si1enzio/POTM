@@ -68,21 +68,25 @@ function qs(id) { return document.getElementById(id); }
 
 function renderAll() {
   const data = getData();
-  renderVoteSection(data);
-  renderPlayersAdmin(data);
-  renderMatchesAdmin(data);
-  renderResults(data);
-  renderAuthUI();
+  if (qs('voteGrid')) renderVoteSection(data);
+  if (qs('playersTable')) renderPlayersAdmin(data);
+  if (qs('matchPlayersSelect')) renderMatchesAdmin(data);
+  if (qs('resultsMatchSelect')) renderResults(data);
+  if (qs('adminSection')) renderAuthUI();
 }
 
 function renderAuthUI() {
   const session = getSession();
-  qs('adminSection').classList.toggle('hidden', !session);
-  qs('logoutBtn').classList.toggle('hidden', !session);
+  if (qs('adminSection')) qs('adminSection').classList.toggle('hidden', !session);
+  if (qs('logoutBtn')) qs('logoutBtn').classList.toggle('hidden', !session);
 }
 
 function getActiveMatch(data) {
   return data.matches.find(m => m.id === data.activeMatchId) || null;
+}
+
+function getVoteMode() {
+  return document.body?.dataset?.voteMode === 'unlimited' ? 'unlimited' : 'limited';
 }
 
 function avatar(player) {
@@ -109,21 +113,28 @@ function renderVoteSection(data) {
   const votePlayers = data.players.filter(p => active.playerIds.includes(p.id));
   info.textContent = `${active.title} (${active.date})`;
 
+  const mode = getVoteMode();
   const voterId = ensureDeviceVoterId();
-  const existingVote = data.votes.find(v => v.matchId === active.id && v.voterId === voterId);
+  const existingVote = mode === 'limited'
+    ? data.votes.find(v => v.matchId === active.id && v.voterId === voterId && v.source !== 'stadium')
+    : null;
 
   grid.innerHTML = votePlayers.map(player => `
     <article class="player-card">
-      <img src="${avatar(player)}" alt="${player.name}" class="player-img" />
-      <h3>#${player.number} ${player.name}</h3>
+      <a href="#" class="vote-link ${existingVote ? 'disabled' : ''}" data-vote-player-id="${player.id}">
+        <img src="${avatar(player)}" alt="${player.name}" class="player-img" />
+        <div class="vote-label"><strong>#${player.number}</strong><br/>${player.name}</div>
+      </a>
       <button data-vote-player-id="${player.id}" ${existingVote ? 'disabled' : ''}>
         ${existingVote?.playerId === player.id ? 'Ai votat' : 'Votează'}
       </button>
     </article>
   `).join('');
 
-  if (existingVote) {
+  if (mode === 'limited' && existingVote) {
     msg.textContent = 'Ai votat deja pentru acest meci de pe acest dispozitiv.';
+  } else if (mode === 'unlimited') {
+    msg.textContent = 'Mod stadion activ: fiecare persoană poate vota pe același dispozitiv.';
   }
 }
 
@@ -172,15 +183,22 @@ function renderMatchesAdmin(data) {
 
 function renderResults(data) {
   const select = qs('resultsMatchSelect');
+  const previouslySelectedId = select.value;
   select.innerHTML = data.matches.map(m => `<option value="${m.id}">${m.title} (${m.date})</option>`).join('');
-  const currentMatchId = select.value || data.activeMatchId;
+
+  const existsPrevious = data.matches.some(m => m.id === previouslySelectedId);
+  if (existsPrevious) {
+    select.value = previouslySelectedId;
+  } else if (data.activeMatchId && data.matches.some(m => m.id === data.activeMatchId)) {
+    select.value = data.activeMatchId;
+  }
+
+  const currentMatchId = select.value;
 
   if (!currentMatchId) {
     qs('resultsTable').innerHTML = '<p class="muted">Nu există meciuri.</p>';
     return;
   }
-
-  if (!select.value && currentMatchId) select.value = currentMatchId;
 
   const match = data.matches.find(m => m.id === currentMatchId);
   if (!match) return;
@@ -249,11 +267,10 @@ function getCroppedDataUrl() {
 }
 
 function setupEvents() {
-  qs('showLoginBtn').addEventListener('click', () => qs('loginSection').classList.toggle('hidden'));
-  qs('logoutBtn').addEventListener('click', () => { setSession(null); renderAll(); });
-  qs('goPublicBtn').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  if (qs('showLoginBtn')) qs('showLoginBtn').addEventListener('click', () => qs('loginSection').classList.toggle('hidden'));
+  if (qs('logoutBtn')) qs('logoutBtn').addEventListener('click', () => { setSession(null); renderAll(); });
 
-  qs('loginForm').addEventListener('submit', (e) => {
+  if (qs('loginForm')) qs('loginForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const data = getData();
     const user = data.users.find(u => u.email === qs('loginEmail').value.trim() && u.password === qs('loginPassword').value);
@@ -263,7 +280,7 @@ function setupEvents() {
     renderAll();
   });
 
-  qs('playerPhoto').addEventListener('change', (e) => {
+  if (qs('playerPhoto')) qs('playerPhoto').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
@@ -282,9 +299,9 @@ function setupEvents() {
     reader.readAsDataURL(file);
   });
 
-  ['cropZoom', 'cropX', 'cropY'].forEach(id => qs(id).addEventListener('input', drawCropPreview));
+  ['cropZoom', 'cropX', 'cropY'].forEach(id => { if (qs(id)) qs(id).addEventListener('input', drawCropPreview); });
 
-  qs('playerForm').addEventListener('submit', (e) => {
+  if (qs('playerForm')) qs('playerForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const data = getData();
     const id = qs('playerId').value;
@@ -307,9 +324,9 @@ function setupEvents() {
     renderAll();
   });
 
-  qs('cancelEditPlayerBtn').addEventListener('click', resetPlayerForm);
+  if (qs('cancelEditPlayerBtn')) qs('cancelEditPlayerBtn').addEventListener('click', resetPlayerForm);
 
-  qs('playersTable').addEventListener('click', (e) => {
+  if (qs('playersTable')) qs('playersTable').addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-edit-player-id]');
     if (!btn) return;
     const data = getData();
@@ -322,7 +339,7 @@ function setupEvents() {
     qs('cancelEditPlayerBtn').classList.remove('hidden');
   });
 
-  qs('matchForm').addEventListener('submit', (e) => {
+  if (qs('matchForm')) qs('matchForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const data = getData();
     const id = qs('matchId').value;
@@ -345,9 +362,9 @@ function setupEvents() {
     renderAll();
   });
 
-  qs('cancelEditMatchBtn').addEventListener('click', resetMatchForm);
+  if (qs('cancelEditMatchBtn')) qs('cancelEditMatchBtn').addEventListener('click', resetMatchForm);
 
-  qs('matchesList').addEventListener('click', (e) => {
+  if (qs('matchesList')) qs('matchesList').addEventListener('click', (e) => {
     const editBtn = e.target.closest('button[data-edit-match-id]');
     const activeBtn = e.target.closest('button[data-set-active-match-id]');
     const data = getData();
@@ -371,18 +388,29 @@ function setupEvents() {
     }
   });
 
-  qs('resultsMatchSelect').addEventListener('change', () => renderResults(getData()));
+  if (qs('resultsMatchSelect')) qs('resultsMatchSelect').addEventListener('change', () => renderResults(getData()));
 
-  qs('voteGrid').addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-vote-player-id]');
+  if (qs('voteGrid')) qs('voteGrid').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-vote-player-id]');
     if (!btn) return;
+    if (btn.tagName === 'A') e.preventDefault();
     const data = getData();
     const active = getActiveMatch(data);
     if (!active) return;
+    const mode = getVoteMode();
     const voterId = ensureDeviceVoterId();
-    const already = data.votes.find(v => v.matchId === active.id && v.voterId === voterId);
-    if (already) return;
-    data.votes.push({ id: uid(), matchId: active.id, playerId: btn.dataset.votePlayerId, voterId, at: new Date().toISOString() });
+    if (mode === 'limited') {
+      const already = data.votes.find(v => v.matchId === active.id && v.voterId === voterId && v.source !== 'stadium');
+      if (already) return;
+    }
+    data.votes.push({
+      id: uid(),
+      matchId: active.id,
+      playerId: btn.dataset.votePlayerId,
+      voterId: mode === 'limited' ? voterId : `stadium_${uid()}` ,
+      source: mode === 'limited' ? 'online' : 'stadium',
+      at: new Date().toISOString()
+    });
     setData(data);
     renderAll();
   });

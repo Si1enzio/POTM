@@ -22,7 +22,7 @@
       <section id="voteSection" class="panel">
         <h2>Vot suporteri</h2>
         <p id="activeMatchInfo" class="muted"></p>
-        <div id="voteGrid" class="player-grid"></div>
+        <div id="voteGrid" class="player-grid compact-grid"></div>
         <p id="voteMessage" class="message"></p>
       </section>
 
@@ -45,7 +45,9 @@
           <button data-tab="playersTab" class="tab-btn active">Jucători</button>
           <button data-tab="matchesTab" class="tab-btn">Meciuri</button>
           <button data-tab="resultsTab" class="tab-btn">Rezultate</button>
-          <button id="goPublicBtn" class="secondary">Pagina vot</button>
+          <button data-tab="publicPagesTab" class="tab-btn">Pagini publice</button>
+          <a id="goPublicBtn" class="secondary as-btn" href="vote-stadium.html" target="_blank" rel="noopener">Vot stadion</a>
+          <a class="secondary as-btn" href="vote.html" target="_blank" rel="noopener">Vot online</a>
         </nav>
 
         <div id="playersTab" class="tab-content">
@@ -116,6 +118,16 @@
             <select id="resultsMatchSelect"></select>
           </label>
           <div id="resultsTable"></div>
+        </div>
+
+        <div id="publicPagesTab" class="tab-content hidden">
+          <h2>Pagini publice vot</h2>
+          <p class="muted">Distribuie link-ul potrivit în funcție de scenariul de votare:</p>
+          <ul>
+            <li><strong>Vot stadion (plansetă):</strong> <a href="vote-stadium.html" target="_blank" rel="noopener">vote-stadium.html</a></li>
+            <li><strong>Vot online (social media):</strong> <a href="vote.html" target="_blank" rel="noopener">vote.html</a></li>
+          </ul>
+          <p class="muted">Vot stadion = fără limită pe dispozitiv. Vot online = 1 vot pe dispozitiv / meci.</p>
         </div>
       </section>
     </main>
