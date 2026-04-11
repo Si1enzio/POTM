@@ -57,6 +57,7 @@ function pushRemoteStateDebounced(state) {
 
 function startRemotePolling() {
   if (!remoteSyncEnabled || remotePollTimer) return;
+  if (qs('adminSection')) return;
   remotePollTimer = setInterval(async () => {
     await pullRemoteState();
     renderAll();
@@ -84,21 +85,6 @@ function getData() {
 
     if (!data.matches) data.matches = [];
     if (!Array.isArray(data.votes)) data.votes = [];
-
-    const looksLikeLegacyDemo = data.matches.length === 1
-      && data.matches[0].title === 'Milsami'
-      && (data.matches[0].opponent || '') === 'Dacia Buiucani'
-      && Array.isArray(data.players)
-      && Array.isArray(data.matches[0].playerIds)
-      && data.matches[0].playerIds.length === data.players.length;
-
-    if (looksLikeLegacyDemo) {
-      const legacyId = data.matches[0].id;
-      data.matches = [];
-      data.activeMatchId = null;
-      data.votes = data.votes.filter(v => v.matchId !== legacyId);
-      setData(data);
-    }
 
     if (!data.activeMatchId && data.matches.length > 0) {
       data.activeMatchId = data.matches[0].id;
