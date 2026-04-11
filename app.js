@@ -135,6 +135,32 @@ function avatar(player) {
   );
 }
 
+function applyVoteGridFit(count) {
+  const grid = qs('voteGrid');
+  if (!grid || !count) return;
+
+  const vw = window.innerWidth || 390;
+  const vh = Math.max(260, (window.innerHeight || 800) - 150);
+
+  let cols = Math.ceil(Math.sqrt((count * vw) / vh));
+  cols = Math.max(2, Math.min(cols, count));
+
+  const rows = Math.ceil(count / cols);
+  const gap = 8;
+  const innerW = Math.max(240, vw - 26);
+  const innerH = Math.max(220, vh - 24);
+
+  const cellW = Math.floor((innerW - (cols - 1) * gap) / cols);
+  const cellH = Math.floor((innerH - (rows - 1) * gap) / rows);
+  const cardEdge = Math.max(78, Math.min(210, Math.min(cellW, cellH)));
+
+  grid.style.setProperty('--fit-cols', String(cols));
+  grid.style.setProperty('--fit-card-pad', `${Math.max(4, Math.floor(cardEdge * 0.06))}px`);
+  grid.style.setProperty('--fit-media', `${Math.max(34, Math.floor(cardEdge * 0.58))}px`);
+  grid.style.setProperty('--fit-name', `${Math.max(10, Math.floor(cardEdge * 0.12))}px`);
+  grid.style.setProperty('--fit-number', `${Math.max(11, Math.floor(cardEdge * 0.14))}px`);
+}
+
 function renderVoteSection(data) {
   const active = getActiveMatch(data);
   const grid = qs('voteGrid');
@@ -149,6 +175,7 @@ function renderVoteSection(data) {
   }
 
   const votePlayers = data.players.filter(p => active.playerIds.includes(p.id));
+  applyVoteGridFit(votePlayers.length);
   info.textContent = `${matchDisplayTitle(active)} (${active.date})`;
 
   const mode = getVoteMode();
@@ -533,5 +560,8 @@ function resetMatchForm() {
   getData();
   initTabs();
   setupEvents();
+  window.addEventListener('resize', () => {
+    if (qs('voteGrid')) renderVoteSection(getData());
+  });
   renderAll();
 })();

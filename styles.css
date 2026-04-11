@@ -797,3 +797,43 @@ button.tiny.danger {
 #matchesTab .inline-actions button {
   min-width: 120px;
 }
+
+
+/* Public standalone results page tweaks */
+.results-public .topbar p {
+  display: block;
+  color: #9ea9bc;
+  margin-top: 0.2rem;
+}
+.results-public .public-main {
+  height: calc(100dvh - 86px);
+}
+.results-public #resultsTab {
+  height: 100%;
+  overflow: auto;
+}
+
+
+/* Auto-fit vote grid: keep all selected players inside viewport and centered */
+.public-only .compact-grid {
+  grid-template-columns: repeat(var(--fit-cols, 4), minmax(0, 1fr));
+  align-content: center;
+  justify-content: center;
+  justify-items: center;
+}
+.public-only .player-card {
+  width: 100%;
+  max-width: 220px;
+  padding: var(--fit-card-pad, 8px);
+}
+.public-only .vote-media-wrap {
+  width: var(--fit-media, 96px);
+  height: var(--fit-media, 96px);
+  margin: 0 auto;
+}
+.public-only .vote-label {
+  font-size: var(--fit-name, 14px);
+}
+.public-only .vote-label strong {
+  font-size: var(--fit-number, 15px);
+}
