@@ -270,3 +270,86 @@ input, select {
     padding: 0.24rem;
   }
 }
+
+
+/* Extra compact mode for narrow/short stadium/public viewports */
+.public-only {
+  height: 100dvh;
+}
+.public-only .topbar {
+  padding: 0.3rem 0.55rem;
+  min-height: 42px;
+}
+.public-only .topbar > div {
+  display: grid;
+  gap: 0.05rem;
+}
+.public-only .topbar h1 {
+  font-size: clamp(0.92rem, 2.8vw, 1rem);
+  white-space: nowrap;
+}
+.public-only .topbar p {
+  font-size: clamp(0.62rem, 1.8vw, 0.7rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.public-only .admin-link {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.public-main {
+  height: calc(100dvh - 44px);
+  padding: 0.25rem;
+}
+.public-only .vote-panel-full {
+  padding: 0.38rem;
+  border-radius: 10px;
+  gap: 0.2rem;
+}
+.public-only .vote-panel-full h2 {
+  font-size: 0.9rem;
+}
+.public-only #activeMatchInfo,
+.public-only #voteMessage {
+  font-size: 0.72rem;
+  line-height: 1.15;
+}
+.public-only .compact-grid {
+  margin-top: 0.15rem;
+  grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
+  gap: 0.28rem;
+}
+.public-only .player-card {
+  padding: 0.28rem 0.22rem;
+  border-radius: 10px;
+}
+.public-only .player-img {
+  width: 48px;
+  height: 48px;
+}
+.public-only .vote-label {
+  margin-top: 0.16rem;
+  min-height: 1.7em;
+  font-size: 0.62rem;
+  line-height: 1.12;
+}
+.public-only .player-card button {
+  margin-top: 0.16rem;
+  padding: 0.18rem;
+  font-size: 0.62rem;
+}
+
+@media (max-height: 760px), (max-width: 980px) {
+  .public-only .compact-grid {
+    grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+    gap: 0.24rem;
+  }
+  .public-only .player-img {
+    width: 44px;
+    height: 44px;
+  }
+  .public-only .vote-label {
+    font-size: 0.58rem;
+  }
+}
