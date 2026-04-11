@@ -407,11 +407,23 @@ function setupEvents() {
       id: uid(),
       matchId: active.id,
       playerId: btn.dataset.votePlayerId,
-      voterId: mode === 'limited' ? voterId : `stadium_${uid()}` ,
+      voterId: mode === 'limited' ? voterId : `stadium_${uid()}`,
       source: mode === 'limited' ? 'online' : 'stadium',
       at: new Date().toISOString()
     });
     setData(data);
+
+    if (mode === 'unlimited') {
+      const card = btn.closest('.player-card');
+      if (card) {
+        card.classList.remove('vote-success');
+        void card.offsetWidth;
+        card.classList.add('vote-success');
+      }
+      setTimeout(() => renderAll(), 950);
+      return;
+    }
+
     renderAll();
   });
 }
