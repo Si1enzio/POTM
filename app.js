@@ -321,6 +321,10 @@ function renderMatchesAdmin(data) {
   }).join('');
 }
 
+function isTop3ResultsMode() {
+  return document.body?.dataset?.resultsMode === "top3";
+}
+
 function renderResults(data) {
   const select = qs('resultsMatchSelect');
   const previouslySelectedId = select.value;
@@ -353,6 +357,26 @@ function renderResults(data) {
     const percent = votes.length ? (count * 100 / votes.length) : 0;
     return { player, count, percent };
   }).sort((a, b) => b.count - a.count);
+
+  if (isTop3ResultsMode()) {
+    const top3 = ranking.slice(0, 3);
+    qs('resultsTable').innerHTML = `
+      <section class="top3-results">
+        ${top3.map((r, idx) => {
+          const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
+          return `
+            <article class="top3-card">
+              <div class="top3-medal">${medal}</div>
+              <img src="${avatar(r.player || {})}" alt="${r.player?.name || 'N/A'}" class="top3-avatar" />
+              <div class="top3-name">${r.player?.name || 'N/A'}</div>
+              <div class="top3-percent">${r.percent.toFixed(1)}%</div>
+            </article>
+          `;
+        }).join('')}
+      </section>
+    `;
+    return;
+  }
 
   qs('resultsTable').innerHTML = `
     <section class="results-dashboard">

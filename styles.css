@@ -913,3 +913,40 @@ button.tiny.danger {
 .public-only .vote-media-placeholder {
   font-size: clamp(24px, 5vw, 46px);
 }
+
+
+/* Top 3 percentage-only results page */
+.top3-results {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+.top3-card {
+  background: linear-gradient(160deg, #25282e, #1f2228);
+  border: 1px solid #2f3440;
+  border-radius: 14px;
+  padding: 0.8rem;
+  text-align: center;
+}
+.top3-medal { font-size: 1.3rem; }
+.top3-avatar {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0.4rem auto;
+  border: 2px solid #ff001a;
+}
+.top3-name {
+  color: #fff;
+  font-weight: 700;
+  line-height: 1.2;
+  min-height: 2.2em;
+}
+.top3-percent {
+  margin-top: 0.45rem;
+  color: #ff001a;
+  font-size: 1.9rem;
+  font-weight: 900;
+}
