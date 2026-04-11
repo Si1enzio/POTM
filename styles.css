@@ -251,7 +251,7 @@ input, select {
 .public-only .player-card button {
   margin-top: 0.28rem;
   width: 100%;
-  border-radius: 999px;
+  border-radius: 18px 0 0 0;
   padding: 0.3rem 0.3rem;
   font-size: 0.73rem;
 }
@@ -500,13 +500,13 @@ input, select {
 .result-bar-wrap {
   height: 12px;
   background: #3a3d43;
-  border-radius: 999px;
+  border-radius: 18px 0 0 0;
   overflow: hidden;
 }
 .result-bar {
   height: 100%;
   background: linear-gradient(90deg, #ff2d3f, #d7071c);
-  border-radius: 999px;
+  border-radius: 18px 0 0 0;
 }
 
 @media (max-width: 900px) {
@@ -885,13 +885,13 @@ button.tiny.danger {
 }
 .public-only .vote-badge {
   position: absolute;
-  right: 8px;
-  bottom: 8px;
+  right: 0;
+  bottom: 0;
   background: #ff001a;
   color: #fff;
   font-weight: 900;
   padding: 0.2rem 0.55rem;
-  border-radius: 999px;
+  border-radius: 18px 0 0 0;
   font-size: clamp(10px, 1.6vw, 18px);
   line-height: 1;
 }

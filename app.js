@@ -124,7 +124,6 @@ function getData() {
     id: `seed_${number}`,
     number,
     name,
-    position: '',
     photoDataUrl: ''
   }));
 
@@ -289,7 +288,7 @@ function renderPlayersAdmin(data) {
         <article class="admin-player-card">
           <div class="admin-player-media">${media}</div>
           <div class="admin-player-name">${p.name}</div>
-          <div class="admin-player-meta">#${p.number} - ${p.position || 'Poziție nealeasă'}</div>
+          <div class="admin-player-meta">#${p.number}</div>
           <div class="admin-player-actions">
             <button data-edit-player-id="${p.id}" class="tiny">Editează</button>
             <button data-delete-player-id="${p.id}" class="tiny danger">Șterge</button>
@@ -472,7 +471,6 @@ function setupEvents() {
     const payload = {
       number: parseInt(qs('playerNumber').value, 10),
       name: qs('playerName').value.trim(),
-      position: qs('playerPosition').value,
     };
 
     if (id) {
@@ -501,8 +499,7 @@ function setupEvents() {
       qs('playerId').value = p.id;
       qs('playerNumber').value = p.number;
       qs('playerName').value = p.name;
-      qs('playerPosition').value = p.position;
-      qs('cancelEditPlayerBtn').classList.remove('hidden');
+        qs('cancelEditPlayerBtn').classList.remove('hidden');
       return;
     }
 
