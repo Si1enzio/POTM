@@ -29,7 +29,32 @@ function ensureDeviceVoterId() {
 
 function getData() {
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (raw) return JSON.parse(raw);
+  if (raw) {
+    const data = JSON.parse(raw);
+
+    if (!data.matches) data.matches = [];
+    if (!Array.isArray(data.votes)) data.votes = [];
+
+    if (!data.activeMatchId && data.matches.length > 0) {
+      data.activeMatchId = data.matches[0].id;
+      setData(data);
+    }
+
+    if (data.matches.length === 0 && Array.isArray(data.players) && data.players.length > 0) {
+      const defaultMatch = {
+        id: uid(),
+        title: 'Milsami',
+        opponent: 'Dacia Buiucani',
+        date: new Date().toISOString().slice(0, 10),
+        playerIds: data.players.map(p => p.id)
+      };
+      data.matches.push(defaultMatch);
+      data.activeMatchId = defaultMatch.id;
+      setData(data);
+    }
+
+    return data;
+  }
 
   const players = initialPlayers.map(([number, name]) => ({
     id: uid(),
@@ -39,11 +64,19 @@ function getData() {
     photoDataUrl: ''
   }));
 
+  const defaultMatch = {
+    id: uid(),
+    title: 'Milsami',
+    opponent: 'Dacia Buiucani',
+    date: new Date().toISOString().slice(0, 10),
+    playerIds: players.map(p => p.id)
+  };
+
   const data = {
     users: [{ id: uid(), email: 'admin@club.ro', password: 'admin123', role: 'superadmin' }],
     players,
-    matches: [],
-    activeMatchId: null,
+    matches: [defaultMatch],
+    activeMatchId: defaultMatch.id,
     votes: []
   };
 
