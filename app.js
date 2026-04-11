@@ -140,26 +140,33 @@ function applyVoteGridFit(count) {
   if (!grid || !count) return;
 
   const vw = window.innerWidth || 390;
-  const vh = Math.max(260, (window.innerHeight || 800) - 150);
+  const vh = window.innerHeight || 800;
+  const availableW = Math.max(220, vw - 14);
+  const availableH = Math.max(180, vh - 130);
+  const gap = 6;
 
-  let cols = Math.ceil(Math.sqrt((count * vw) / vh));
-  cols = Math.max(2, Math.min(cols, count));
+  // Estimate card height as media + label block; keeps all cards inside viewport.
+  const cardAspect = 1.35;
+  let best = { cols: Math.min(count, 4), rows: Math.ceil(count / Math.min(count, 4)), edge: 80 };
 
-  const rows = Math.ceil(count / cols);
-  const gap = 8;
-  const innerW = Math.max(240, vw - 26);
-  const innerH = Math.max(220, vh - 24);
+  for (let cols = 1; cols <= count; cols += 1) {
+    const rows = Math.ceil(count / cols);
+    const cellW = (availableW - (cols - 1) * gap) / cols;
+    const cellH = (availableH - (rows - 1) * gap) / rows;
+    const edge = Math.min(cellW, cellH / cardAspect);
+    if (edge > best.edge) best = { cols, rows, edge };
+  }
 
-  const cellW = Math.floor((innerW - (cols - 1) * gap) / cols);
-  const cellH = Math.floor((innerH - (rows - 1) * gap) / rows);
-  const cardEdge = Math.max(78, Math.min(210, Math.min(cellW, cellH)));
-
-  grid.style.setProperty('--fit-cols', String(cols));
-  grid.style.setProperty('--fit-card-pad', `${Math.max(4, Math.floor(cardEdge * 0.06))}px`);
-  grid.style.setProperty('--fit-media', `${Math.max(34, Math.floor(cardEdge * 0.58))}px`);
-  grid.style.setProperty('--fit-name', `${Math.max(10, Math.floor(cardEdge * 0.12))}px`);
-  grid.style.setProperty('--fit-number', `${Math.max(11, Math.floor(cardEdge * 0.14))}px`);
+  const edge = Math.max(56, Math.floor(best.edge));
+  grid.style.setProperty('--fit-cols', String(best.cols));
+  grid.style.setProperty('--fit-rows', String(best.rows));
+  grid.style.setProperty('--fit-card-pad', `${Math.max(2, Math.floor(edge * 0.035))}px`);
+  grid.style.setProperty('--fit-media', `${Math.max(26, Math.floor(edge * 0.56))}px`);
+  grid.style.setProperty('--fit-name', `${Math.max(8, Math.floor(edge * 0.12))}px`);
+  grid.style.setProperty('--fit-number', `${Math.max(9, Math.floor(edge * 0.14))}px`);
+  grid.style.setProperty('--fit-gap', `${gap}px`);
 }
+
 
 function renderVoteSection(data) {
   const active = getActiveMatch(data);
