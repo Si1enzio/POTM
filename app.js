@@ -41,9 +41,35 @@ async function pullRemoteState() {
   }
 }
 
+
+function mergeStatePreservePhotos(outgoing, existingRemote) {
+  if (!existingRemote?.players || !outgoing?.players) return outgoing;
+
+  const remoteById = new Map(existingRemote.players.map(p => [p.id, p]));
+  const remoteByKey = new Map(existingRemote.players.map(p => [`${p.number}|${(p.name || '').toLowerCase()}`, p]));
+
+  const mergedPlayers = outgoing.players.map(p => {
+    const key = `${p.number}|${(p.name || '').toLowerCase()}`;
+    const remote = remoteById.get(p.id) || remoteByKey.get(key);
+    if (p.photoDataUrl) return p;
+    if (remote?.photoDataUrl) return { ...p, photoDataUrl: remote.photoDataUrl };
+    return p;
+  });
+
+  return { ...outgoing, players: mergedPlayers };
+}
+
 async function pushRemoteState(state) {
   if (!remoteSyncEnabled) return;
-  await supabaseClient.from('potm_state').upsert({ id: 1, state }, { onConflict: 'id' });
+
+  const { data: existing } = await supabaseClient
+    .from('potm_state')
+    .select('state')
+    .eq('id', 1)
+    .maybeSingle();
+
+  const safeState = mergeStatePreservePhotos(state, existing?.state);
+  await supabaseClient.from('potm_state').upsert({ id: 1, state: safeState }, { onConflict: 'id' });
 }
 
 function pushRemoteStateDebounced(state) {
@@ -95,7 +121,7 @@ function getData() {
   }
 
   const players = initialPlayers.map(([number, name]) => ({
-    id: uid(),
+    id: `seed_${number}`,
     number,
     name,
     position: '',
