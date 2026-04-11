@@ -14,6 +14,46 @@ const initialPlayers = [
 
 let cropSourceImage = null;
 
+let supabaseClient = null;
+let remoteSyncEnabled = false;
+let remoteSyncTimer = null;
+
+function initRemoteSync() {
+  const cfg = window.SUPABASE_CONFIG || {};
+  if (!cfg.url || !cfg.anonKey || !window.supabase?.createClient) return;
+
+  supabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey);
+  remoteSyncEnabled = true;
+}
+
+async function pullRemoteState() {
+  if (!remoteSyncEnabled) return;
+  const { data, error } = await supabaseClient
+    .from('potm_state')
+    .select('state')
+    .eq('id', 1)
+    .maybeSingle();
+
+  if (error) return;
+  if (data?.state) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.state));
+  }
+}
+
+async function pushRemoteState(state) {
+  if (!remoteSyncEnabled) return;
+  await supabaseClient.from('potm_state').upsert({ id: 1, state }, { onConflict: 'id' });
+}
+
+function pushRemoteStateDebounced(state) {
+  if (!remoteSyncEnabled) return;
+  if (remoteSyncTimer) clearTimeout(remoteSyncTimer);
+  remoteSyncTimer = setTimeout(() => {
+    pushRemoteState(state).catch(() => {});
+  }, 250);
+}
+
+
 function uid() {
   return `${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
@@ -80,6 +120,7 @@ function getData() {
 
 function setData(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  pushRemoteStateDebounced(data);
 }
 
 function getSession() {
@@ -557,7 +598,12 @@ function resetMatchForm() {
   document.querySelectorAll('.match-player-check').forEach(c => c.checked = false);
 }
 
-(function init() {
+(async function init() {
+  initRemoteSync();
+  if (remoteSyncEnabled) {
+    await pullRemoteState();
+  }
+
   getData();
   initTabs();
   setupEvents();
