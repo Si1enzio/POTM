@@ -858,3 +858,58 @@ button.tiny.danger {
   font-size: 0.78rem;
   line-height: 1;
 }
+
+
+/* Player card redesign: full-width photo, red corner badge, single-line name */
+.public-only .player-card {
+  padding: 0;
+  overflow: hidden;
+}
+.public-only .vote-link {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  height: 100%;
+  gap: 0;
+}
+.public-only .vote-media-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: var(--fit-media, 78px);
+  border-radius: 0;
+  position: relative;
+}
+.public-only .vote-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.public-only .vote-badge {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  background: #ff001a;
+  color: #fff;
+  font-weight: 900;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: clamp(10px, 1.6vw, 18px);
+  line-height: 1;
+}
+.public-only .vote-name {
+  width: 100%;
+  text-align: center;
+  padding: 0.2rem 0.3rem 0.3rem;
+  font-size: var(--fit-name, 13px);
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+.public-only .vote-label {
+  display: none;
+}
+.public-only .vote-media-placeholder {
+  font-size: clamp(24px, 5vw, 46px);
+}

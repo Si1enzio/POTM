@@ -259,8 +259,11 @@ function renderVoteSection(data) {
     return `
       <article class="player-card ${selectedClass}">
         <a href="#" class="vote-link ${existingVote ? 'disabled' : ''}" data-vote-player-id="${player.id}">
-          <div class="vote-media-wrap">${media}</div>
-          <div class="vote-label"><strong>#${player.number}</strong><br/>${player.name}</div>
+          <div class="vote-media-wrap">
+            ${media}
+            <div class="vote-badge">#${player.number}</div>
+          </div>
+          <div class="vote-name" title="${player.name}">${player.name}</div>
         </a>
       </article>
     `;
